@@ -1,0 +1,33 @@
+# Web patcher build output
+web/dist/
+node_modules/
+
+# Original copyrighted game files and device captures
+original/
+orig/
+verify/remote/
+
+# never publish game files (original or patched) or binaries
+RoomLogic.lua
+*.bak*
+*.dll
+*.exe
+*.pdb
+*.nova43.tmp
+
+# dev artifacts and device captures
+*.log
+*.png
+*.jpg
+*.mp4
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# python bytecode
+__pycache__/
+
+# personal device notes for claude code (adb serial, ssh setup); never publish
+CLAUDE.local.md
+build/
