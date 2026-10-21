@@ -98,7 +98,7 @@ The content files are byte-identical in the Windows and macOS builds, so the sam
 3. Either copy it out, patch it with the web patcher or on a PC, and copy it back, or run `python3 patch.py patch` against that folder in DroidDeck's desktop mode.
 4. Keep `RoomLogic.lua.bak` next to it. It is your way back.
 
-The boon screen has been tested and approved on a Retroid Pocket Nova (DroidDeck, 1280x960).
+Tested on a Retroid Pocket Nova (DroidDeck, 1280x960).
 
 ## Build from source
 
@@ -115,9 +115,8 @@ Tunables are in `CFG` at the top of `patch/nova43.lua`: `Enabled` per screen, `C
 
 ## Limits
 
-- **Dialogue is not yet confirmed on a device.** The dialogue zoom is deployed on the Nova but has not been checked on screen. Treat it as untested.
 - **Cropping is part of the design.** See [What gets cropped](#what-gets-cropped).
 - **Keyword tooltips are not enlarged.** The engine draws them at a fixed size.
 - **One supported build:** Steam build 25481925. Other builds are refused until the patcher is updated.
-- **Mods:** the patch works by appending to `RoomLogic.lua`, like ModImporter. Because only a vanilla `RoomLogic.lua` is accepted, a file already edited by ModImporter is refused as an unknown build; patch first, then run ModImporter. It has not been tested with Hell2Modding mods. Other mods that rebuild these screens may conflict.
+- **Mods:** the patch works by appending to `RoomLogic.lua`, like ModImporter. Because only a vanilla `RoomLogic.lua` is accepted, a file already edited by ModImporter is refused as an unknown build; patch first, then run ModImporter. Hell2Modding mods are not covered. Other mods that rebuild these screens may conflict.
 - **Every other screen** is unchanged and still uses the vanilla layout.

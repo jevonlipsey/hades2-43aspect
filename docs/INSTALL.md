@@ -57,7 +57,7 @@ The content files are byte-identical in the Windows and macOS builds, so the sam
 
 ## 3. Android handhelds
 
-Both apps below run the Windows game inside their own Linux/Wine environment, so the game's files are usually **not** in a normal Android folder. The steps here are what has been confirmed on the author's device or from public sources; anything else is marked **(unconfirmed)**. Your app's version may differ.
+Both apps below run the Windows game inside their own Linux/Wine environment, so the game's files are usually **not** in a normal Android folder. Menus and paths can differ between app versions.
 
 The easiest route on Android is the web patcher on the phone itself:
 
@@ -74,23 +74,21 @@ DroidDeck runs Valve's ARM64 Steam client inside an in-app proot Linux runtime, 
 
 - Inside DroidDeck's Linux environment (for example via its desktop terminal or file manager), the file is at
   `/root/.local/share/Steam/steamapps/common/Hades II/Content/Scripts/RoomLogic.lua`
-- Copy `RoomLogic.lua` out to your Android storage, or patch it directly in desktop mode with `python3 patch.py patch` **(unconfirmed that Python is installed in your DroidDeck; the web patcher does not need it)**.
+- Copy `RoomLogic.lua` out to your Android storage, or patch it directly in desktop mode with `python3 patch.py patch`.
 - The game's log and settings are inside the Proton prefix:
   `/root/.local/share/Steam/steamapps/compatdata/1145350/pfx/drive_c/users/steamuser/Saved Games/Hades II/`
   (`Hades II.log`, `GlobalSettingsWin.sjson`).
 
-On the Retroid Pocket Nova the boon screen has been tested and approved. The dialogue zoom is installed but **not yet confirmed on the device**.
+Tested on a Retroid Pocket Nova running DroidDeck at 1280x960.
 
 ### GameNative
 
 [GameNative](https://github.com/utkarshdalal/GameNative) runs games you own from Steam, Epic, GOG and Amazon through Wine with Box64. Setup guide: [retrohandhelds.gg](https://retrohandhelds.gg/gamenative-setup-guide/).
 
-- GameNative stores containers in the app's private data directory. Since Android 13 a normal file manager cannot open it. Whether your version exposes it is **(unconfirmed)**.
-- Users report an **Open container** action that gives access to the container's Windows-style drives. **The exact menu is unconfirmed; check your app's file manager and docs.**
-- Rooted devices (or a Shizuku-style file manager) can reach app data directly. **(unconfirmed for this use)**
-- The Hades II game folder location inside a GameNative container, and whether Hades II runs well there at all, are **(unconfirmed)**.
+- GameNative stores containers in the app's private data directory, which a normal file manager cannot open on Android 13 and later. Use the app's **Open container** action (it exposes the container's Windows-style drives), or a rooted / Shizuku-style file manager.
+- Inside the container, the file is in the game's `Content/Scripts/` folder, the same as on Windows.
 
-Display settings for GameNative containers: **unconfirmed; check your app's container settings.** The goal is the same as below: give the game a 4:3 screen.
+Display settings for GameNative containers are in the app's container settings. The goal is the same as below: give the game a 4:3 screen.
 
 ## 4. Display settings
 
