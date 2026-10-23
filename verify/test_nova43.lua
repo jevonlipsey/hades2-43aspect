@@ -29,8 +29,13 @@ local function record( kind )
 		local c = {}
 		for k, v in pairs( params ) do c[k] = v end
 		c._kind = kind
+		if kind == "Spawn" then
+			nextId = nextId + 1
+			c.Id = nextId
+			table.insert( log, c )
+			return nextId
+		end
 		table.insert( log, c )
-		if kind == "Spawn" then nextId = nextId + 1; return nextId end
 	end
 end
 
@@ -108,6 +113,8 @@ local function freshGlobals()
 		Teleport({ Id = screen.PortraitId, OffsetX = ScreenCenterX - 490 + 10, OffsetY = ScreenCenterY + 105 - 20 })
 		SetScale({ Id = screen.PortraitId, Fraction = 1.0 })
 		screen.BackgroundId = CreateScreenObstacle({ Name = "DialogueSpeechBubble", X = ScreenCenterX + 198, Y = ScreenCenterY + 264 })
+		screen.NameplateId = CreateScreenObstacle({ Name = "BlankObstacle", X = ScreenCenterX - 12, Y = ScreenCenterY + 103 })
+		CreateTextBox({ Id = screen.NameplateId, FontSize = 32, Text = "Melinoe" })
 		CreateTextBox({ Id = screen.BackgroundId, FontSize = 24, Width = 833, OffsetX = -397, OffsetY = 45 })
 		CreateAnimation({ Name = "Emote", DestinationId = screen.PortraitId, OffsetX = 10, OffsetY = -20 })
 		return screen
@@ -131,6 +138,7 @@ end
 
 -- expected transforms (mirror CFG defaults): zoom S about (570, 720) for boons, (960, 720) for dialogue
 local S = 1440 / 1080
+local TS_DIAL = 1.05
 local function bx( x ) return 570 + S * ( x - 570 ) end
 local function by( y ) return 720 + S * ( y - 720 ) end
 local function dx( x ) return 960 + S * ( x - 960 ) end
@@ -196,7 +204,9 @@ check( near( tp.OffsetX, dx( 480 ) ) and near( tp.OffsetY, dy( 805 ) ), "absolut
 local ps = find( "SetScale", function( e ) return e.Id == d.PortraitId end )
 check( near( ps.Fraction, S ), "portrait override scale multiplied" )
 local body = find( "Text", function( e ) return e.Id == d.BackgroundId end )
-check( near( body.FontSize, 24 * S ) and near( body.Width, 833 * S ) and near( body.OffsetX, -397 * S ), "dialogue body text scaled" )
+check( near( body.FontSize, 24 * TS_DIAL ) and near( body.Width, 833 * TS_DIAL ) and near( body.OffsetX, -397 * TS_DIAL ), "dialogue body text scaled with gentle TextScale" )
+local np = find( "Spawn", function( e ) return e.Id == d.NameplateId end )
+check( near( np.X, dx( 1158 ) - 210 ) and near( np.Y, dy( 984 ) - 161 ), "nameplate locked to dialogue bubble with relative offset" )
 local emote = find( "Anim" )
 check( near( emote.OffsetX, 10 * S ), "emote offset scaled" )
 

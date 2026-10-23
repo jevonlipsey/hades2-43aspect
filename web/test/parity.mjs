@@ -43,8 +43,8 @@ try {
   ok(r.reason === 'ok', 'node core reason ok (got ' + r.reason + ')');
   ok(r.output && Buffer.compare(Buffer.from(r.output), pyBytes) === 0, 'node output is byte-identical to patch.py output');
   ok(r.outputSha256 === sha(pyBytes), 'output sha256 ' + r.outputSha256);
-  console.log('  note: expected for this patch version 60608a7922268ee145d76743d125f2b00227d4d55e2d7603c9e3b4044e6bd402, ' +
-    (r.outputSha256 === '60608a7922268ee145d76743d125f2b00227d4d55e2d7603c9e3b4044e6bd402' ? 'matches' : 'differs'));
+  console.log('  note: expected for this patch version 02c60b02ba8915b0d53a1a9c0369f3a9e6bb21bc7fb968bc06c2404b4f41efa5, ' +
+    (r.outputSha256 === '02c60b02ba8915b0d53a1a9c0369f3a9e6bb21bc7fb968bc06c2404b4f41efa5' ? 'matches' : 'differs'));
   ok(r.passed === 4 && r.failed === 0, 'core reports 4 checks passed');
 
   const again = await Core.patch(r.output, data, async (b) => sha(b));

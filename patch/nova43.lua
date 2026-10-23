@@ -17,7 +17,7 @@ local function nova43_install()
 		-- zoom = min(ScreenScaleY, Cap) about (ScreenCenterX + PivotDX, ScreenCenterY + PivotDY).
 		-- The boon pivot sits left of centre so Mel stays in frame and the slot text stays on screen.
 		Boon = { Cap = 1.34, PivotDX = -390, PivotDY = 0 },
-		Dialogue = { Cap = 1.34, PivotDX = 0, PivotDY = 0 },
+		Dialogue = { Cap = 1.34, PivotDX = 0, PivotDY = 0, TextScale = 1.05 },
 		-- skip the letterbox frame art while a zoomed screen is open (the zoomed art covers the bands)
 		HideFrames = true,
 		-- how many stack levels above a wrapped call to search for a layout function
@@ -27,7 +27,7 @@ local function nova43_install()
 	-- Survives a re-run of this file in the same Lua state, so functions are never wrapped twice.
 	Nova43 = Nova43 or { Originals = {}, Wrappers = {} }
 	local state = Nova43
-	state.Version = 3
+	state.Version = 4
 	state.Config = CFG
 
 	local function original( name )
@@ -98,7 +98,7 @@ local function nova43_install()
 		local c = CFG[cfgKind]
 		if s > c.Cap then s = c.Cap end
 		if s <= 1.001 then return nil end
-		return { Kind = kind, S = s, PX = ScreenCenterX + c.PivotDX, PY = ScreenCenterY + c.PivotDY }
+		return { Kind = kind, S = s, TextScale = c.TextScale, PX = ScreenCenterX + c.PivotDX, PY = ScreenCenterY + c.PivotDY }
 	end
 
 	local function mapX( t, x ) return t.PX + t.S * ( x - t.PX ) end
@@ -136,6 +136,9 @@ local function nova43_install()
 	-- Native-layout y offset from the centre at which the boon action bar starts (ActionBarY 984 is +444).
 	local ACTION_BAR_DY = 360
 
+	-- Dialogue bubble position cache to anchor the nameplates and continue prompt to the speech bubble
+	local lastDialogueBubble = nil
+
 	wrap( "CreateScreenObstacle", function( base )
 		return function( params )
 			local kind = params ~= nil and currentContext()
@@ -163,6 +166,20 @@ local function nova43_install()
 					tag( id, "anchor" )
 					return id
 				end
+			elseif t.Kind == "Dialogue" then
+				local art = params.Animation or params.AnimationName or params.Graphic
+				local isBubble = ( params.Name == "DialogueSpeechBubble" or params.Name == "DialogueSpeechBubbleLight" or params.Name == "NarrationBubble" or ( art and string.find( art, "SpeechBubble" ) ) )
+				if isBubble then
+					params.X = mapX( t, x )
+					params.Y = mapY( t, y )
+					lastDialogueBubble = { VanillaX = x, VanillaY = y, MappedX = params.X, MappedY = params.Y }
+					return base( params )
+				elseif lastDialogueBubble ~= nil and params.Name == "BlankObstacle" then
+					-- nameplate or prompt anchor: lock to the bubble's mapped position using vanilla relative offset
+					params.X = lastDialogueBubble.MappedX + ( x - lastDialogueBubble.VanillaX )
+					params.Y = lastDialogueBubble.MappedY + ( y - lastDialogueBubble.VanillaY )
+					return base( params )
+				end
 			end
 			params.X = mapX( t, x )
 			params.Y = mapY( t, y )
@@ -179,7 +196,7 @@ local function nova43_install()
 			local t = kind and transformFor( kind )
 			if not t or tagged[params.Id] == "bar" then return base( params ) end
 			params = copy( params )
-			local s = t.S
+			local s = t.TextScale or t.S
 			for _, key in ipairs({ "FontSize", "Width", "OffsetX", "OffsetY", "LineSpacingBottom", "LineSpacingTop", "OutlineThickness" }) do
 				if type( params[key] ) == "number" then params[key] = params[key] * s end
 			end
