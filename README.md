@@ -1,6 +1,6 @@
 # Hades II 4:3 UI Patch
 
-Makes the boon-selection and dialogue screens of **Hades II** readable on 4:3 displays such as the **Retroid Pocket Nova** (4.5", 1280x960). Hades II already runs natively at 4:3. These two screens are the exception: they are 16:9 layouts drawn in a band in the middle of the screen, so their text is tiny. The patch is one Lua block appended to `Content/Scripts/RoomLogic.lua`. It zooms those two screens to fill the display. Nothing else in the game changes.
+Makes the conversations and choice screens of **Hades II** readable on 4:3 displays such as the **Retroid Pocket Nova** (4.5", 1280x960): dialogue, boon selection, Selene's hexes, the Path of Stars, Nemesis' trades, the shops and the Pool of Purging. Hades II already runs natively at 4:3. These screens are the exception: they are 16:9 layouts drawn in a band in the middle of the screen, so their text is tiny. The patch is one Lua block appended to `Content/Scripts/RoomLogic.lua`. It zooms those screens to fill the display. Nothing else in the game changes.
 
 The patcher ships only our own Lua block and modifies your own copy of the game. **No game code is redistributed.**
 
@@ -18,7 +18,7 @@ Step-by-step instructions, per-platform paths, Android handheld notes, display s
 
 ## Why the menus look small at 4:3
 
-At 4:3 the game keeps a 1920-wide virtual canvas and makes it 1440 tall (`ScreenScaleY` is 1.333). Gameplay uses all of it. The boon-selection and dialogue screens are 1920x1080 layouts. They are drawn in a centred band, with frame art above and below to fill the rest.
+At 4:3 the game keeps a 1920-wide virtual canvas and makes it 1440 tall (`ScreenScaleY` is 1.333). Gameplay uses all of it. The dialogue and choice screens are 1920x1080 layouts. They are drawn in a centred band, with frame art above and below to fill the rest.
 
 On a 1280x960 handheld that band is a 1280x720 strip. Text in it is about 13 to 16 px tall.
 
@@ -27,12 +27,13 @@ On a 1280x960 handheld that band is a 1280x720 strip. Text in it is about 13 to 
 Only `Content/Scripts/RoomLogic.lua` is modified. Every other game file is left as it is.
 
 - **One block, appended.** The engine loads `RoomLogic.lua` at boot, and it imports all the other scripts first, so the block runs after them. It sits between `-- >>> nova43` and `-- <<< nova43 <<<` markers. This is the same injection point ModImporter uses.
-- **A few engine calls are wrapped:** `CreateScreenObstacle`, `CreateTextBox`, `Attach`, `Teleport`, `SetScale`, `CreateAnimation`, `SetInteractProperty` and `AltAspectRatioFramesShow`.
-- **They are rewritten only inside the two screens.** A call is changed only while one of the layout functions (`CreateUpgradeChoiceButton`, `TraitLockedPresentation`, `CreateScreenFromData` called from `OpenUpgradeChoiceMenu`, `DisplayTextLine`) is on the calling coroutine's stack.
+- **A few engine calls are wrapped:** `CreateScreenObstacle`, `CreateTextBox`, `Attach`, `Teleport`, `SetScale`, `SetScaleX`, `CreateAnimation`, `SetInteractProperty`, `TeleportCursor` and `AltAspectRatioFramesShow`.
+- **They are rewritten only inside the covered screens.** Dialogue and the boon screen are recognised by their layout functions (`CreateUpgradeChoiceButton`, `TraitLockedPresentation`, `CreateScreenFromData` called from `OpenUpgradeChoiceMenu`, `DisplayTextLine`) on the calling coroutine's stack. The other choice screens are recognised by the script file that draws them (`SpellScreenLogic.lua`, `TalentScreenLogic.lua`, `TradeLogic.lua`, `SellTraitLogic.lua`, `SurfaceShopLogic.lua`, the Well of Charon part of `StoreLogic.lua`), so a screen's later redraws (hover, reroll, refresh) follow the same zoom. Only pieces in the menu draw groups are touched, never the HUD.
 - **Each screen is zoomed uniformly** by `ScreenScaleY` (1.333 at 4:3, 1.111 at 16:10) so it fills the screen. It is a crop of the 16:9 scene, never a stretch.
 - **Text is re-rendered at the larger size.** Boon descriptions go from 19.5 to 26, dialogue from 24 to 32 (game units).
 - **Boon screen:** the zoom pivot is left of centre so Mel stays mostly in frame. The title and header stay centred. The action bar (Boon Info / Choose) moves into the bottom band at its normal size. The keyword tooltips keep their vanilla position, because the engine draws them at a fixed size.
-- **Letterbox frame art** is skipped on these two screens only.
+- **Other choice screens** zoom about the screen centre (the Path of Stars a little left of it, so its tree and pin stay in frame), with their action bar moved into the bottom band like the boon screen.
+- **Letterbox frame art** is skipped on the covered screens only. Full-screen menus (Codex, Fated List, keepsakes, Arcana, inventory and the like) are wider than what a zoom keeps, so they stay as they are.
 - **At 16:9 nothing changes.** The block does not walk the stack at all.
 - **Safe by default.** At load the block checks sentinel values in the game's data. If the scripts do not match the expected layout, it disables itself and the game runs vanilla.
 

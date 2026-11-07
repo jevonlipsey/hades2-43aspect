@@ -1,6 +1,6 @@
 # hades2-43aspect
 
-Makes Hades II's boon-selection and dialogue screens readable at 4:3 (Retroid Pocket Nova, 1280x960). Gameplay already runs natively at 4:3; this patch touches only those two UI compositions.
+Makes Hades II's dialogue and choice screens readable at 4:3 (Retroid Pocket Nova, 1280x960). Gameplay already runs natively at 4:3; this patch touches only those UI compositions.
 
 ## Commands
 
@@ -36,7 +36,9 @@ python3 tools/preview.py ...               # approximates the zoom from a device
 - Boon and Chrome share one zoom: `ScreenScaleY` (capped by `CFG`), pivot `ScreenCenterX-390`.
 - Chrome keeps text anchors and the header centred, and moves the action bar (native y >= centre+360) into the bottom band unscaled.
 - Dialogue zooms about the screen centre, including the context art.
-- `AltAspectRatioFramesShow` is skipped when called from `OpenUpgradeChoiceMenu` or `DisplayTextLine`.
+- Panels (v5): other choice screens are matched by the script FILE of the first non-`UILogic.lua` function on the stack (`CFG.Panels`: SpellScreen, TalentScreen, Trade, SellTrait, SurfaceShop, StoreLogic whitelist). Only `Combat_Menu*` groups. Spawned ids are tagged, and later calls on a tagged id follow its zoom from any coroutine. `SetScaleX` on Path of Stars link lines is divided by the zoom (their length comes from `GetDistance`); `TeleportCursor` is mapped in panel context.
+- `AltAspectRatioFramesShow` is skipped when called from `OpenUpgradeChoiceMenu`, `DisplayTextLine` or a panel function.
+- `tools/sim/` runs the real game scripts headless under Lua 5.2.4 (built in `.cache/`, deterministic table order) with recorded engine stubs; `tools/sim/run.sh` + `compare.py` show exactly what the block changes per screen.
 - On a 16:9 canvas there's no stack walk and no change.
 - At load the block checks sentinel values in the game data, and stays off if they don't match.
 - Tunables are in `CFG` at the top of the block. In a running game they're also reachable as `Nova43.Config`.

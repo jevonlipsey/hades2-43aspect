@@ -1,6 +1,6 @@
 # Installing the Hades II 4:3 UI patch
 
-This patch makes the boon-selection and dialogue screens of Hades II fill a 4:3 screen such as the Retroid Pocket Nova, so their text is readable. You patch **your own copy** of `RoomLogic.lua`; nothing from the game is downloaded or shared. This is an unofficial fan tool, not affiliated with or endorsed by Supergiant Games.
+This patch makes the dialogue and choice screens of Hades II (boons, Selene's hexes, the Path of Stars, Nemesis' trades, the shops and the Pool of Purging) fill a 4:3 screen such as the Retroid Pocket Nova, so their text is readable. You patch **your own copy** of `RoomLogic.lua`; nothing from the game is downloaded or shared. This is an unofficial fan tool, not affiliated with or endorsed by Supergiant Games.
 
 ## Quick summary
 

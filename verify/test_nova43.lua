@@ -53,8 +53,11 @@ local function freshGlobals()
 	SetScale = record( "SetScale" )
 	CreateAnimation = record( "Anim" )
 	SetInteractProperty = record( "Interact" )
+	SetScaleX = record( "SetScaleX" )
+	TeleportCursor = record( "Cursor" )
 
-	-- UILogic.lua:542 / :504 / :1205 (trimmed)
+	-- UILogic.lua:542 / :504 / :1205 (trimmed); compiled under that file name, which the patch skips as a helper
+	assert( load( [[
 	function CreateScreenObstacle( params )
 		if params.X == nil and params.Y == nil then params.X = ScreenCenterX; params.Y = ScreenCenterY end
 		return SpawnScreenObstacle( params )
@@ -70,6 +73,25 @@ local function freshGlobals()
 		for k, v in pairs( args ) do p[k] = v end
 		CreateTextBox( p )
 	end
+	]], "=[engine chunk 1]" ) )()
+	-- SpellScreenLogic.lua (trimmed): a panel screen, matched by its chunk source (any name format)
+	assert( load( [[
+	function OpenSpellScreen()
+		AltAspectRatioFramesShow()
+		local bg = CreateScreenComponent({ Name = "BlankObstacle", Group = "Combat_Menu", X = ScreenCenterX, Y = ScreenCenterY })
+		local bar = CreateScreenComponent({ Name = "BlankObstacle", Group = "Combat_Menu", X = 1875, Y = 1210 })
+		local slot = CreateScreenComponent({ Name = "BoonSlotBase", Group = "Combat_Menu", X = 960, Y = 480 })
+		CreateTextBox({ Id = slot.Id, FontSize = 27, OffsetX = -420 })
+		local line = CreateScreenComponent({ Name = "BlankObstacle", Group = "Combat_Menu", Animation = "TalentTreeLineLocked", DestinationId = slot.Id })
+		SetScaleX({ Id = line.Id, Fraction = 2 })
+		local hud = CreateScreenComponent({ Name = "BlankObstacle", Group = "HUD_Main", X = 50, Y = 1285 })
+		TeleportCursor({ OffsetX = 960, OffsetY = 480 })
+		return { Bg = bg, Bar = bar, Slot = slot, Line = line, Hud = hud }
+	end
+	function MouseOverSpellButton( slot )
+		SetScale({ Id = slot.Id, Fraction = 1.1 })
+	end
+	]], "=[engine chunk 2]" ) )()
 	AltAspectRatioFramesShow = function() table.insert( log, { _kind = "Frames" } ) end
 	function CreateScreenFromData( screen, componentData )
 		screen.Art = CreateScreenComponent({ Name = "BlankObstacle", AnimationName = "OlympusBackground_In", X = 960, Y = 540 + 180 })
@@ -220,6 +242,29 @@ reset( "16:9" )
 OpenUpgradeChoiceMenu({})
 slot1 = find( "Spawn", function( e ) return e.Name == "BoonSlotBase" end )
 check( slot1.X == 955 and slot1.Y == 350 and slot1.Scale == nil, "boon slots untouched at 16:9" )
+
+-- 4b. panel screens (matched by script file): uniform zoom about the centre, bar into the band, HUD untouched
+reset( "4:3" )
+check( Nova43.Panels["SpellScreenLogic.lua"] == true and Nova43.Panels["TalentScreenLogic.lua"] == nil, "panel files resolved from their anchor functions" )
+local panel = OpenSpellScreen()
+local function spawnOf( id ) return find( "Spawn", function( e ) return e.Id == id end ) end
+check( find( "Frames" ) == nil, "letterbox frames skipped for a panel screen" )
+local pbg, pbar, pslot = spawnOf( panel.Bg.Id ), spawnOf( panel.Bar.Id ), spawnOf( panel.Slot.Id )
+check( pbg.X == 960 and pbg.Y == 720 and near( pbg.Scale, S ), "panel background zoomed in place" )
+check( pbar.X == 1875 and near( pbar.Y, 720 + S * 490 ) and pbar.Scale == nil, "panel action bar pushed into the band at its own size" )
+check( near( pslot.X, dx( 960 ) ) and near( pslot.Y, dy( 480 ) ) and near( pslot.Scale, S ), "panel slot zoomed about the centre" )
+local ptext = find( "Text", function( e ) return e.Id == panel.Slot.Id end )
+check( near( ptext.FontSize, 27 * S ) and near( ptext.OffsetX, -420 * S ), "panel slot text zoomed" )
+check( near( find( "SetScaleX" ).Fraction, 2 / S ), "measured link-line stretch not zoomed twice" )
+check( spawnOf( panel.Hud.Id ).Scale == nil and spawnOf( panel.Hud.Id ).X == 50, "HUD pieces drawn by a panel untouched" )
+local cur = find( "Cursor" )
+check( near( cur.OffsetX, dx( 960 ) ) and near( cur.OffsetY, dy( 480 ) ), "gamepad cursor follows the zoomed slot" )
+MouseOverSpellButton( panel.Slot )
+local hover = find( "SetScale", function( e ) return e.Id == panel.Slot.Id end )
+check( near( hover.Fraction, 1.1 * S ), "later SetScale on a zoomed panel piece keeps the zoom" )
+reset( "16:9" )
+panel = OpenSpellScreen()
+check( spawnOf( panel.Slot.Id ).Scale == nil and spawnOf( panel.Slot.Id ).Y == 480, "panel untouched at 16:9" )
 
 -- 5. re-running the block does not double-wrap
 load(); reset( "4:3" )

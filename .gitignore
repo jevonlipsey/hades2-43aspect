@@ -31,3 +31,9 @@ __pycache__/
 # personal device notes for claude code (adb serial, ssh setup); never publish
 CLAUDE.local.md
 build/
+
+# local tool builds (lua 5.2 for tools/sim)
+.cache/
+
+# device test helpers (adb serial, device paths); kept local
+tools/device/
