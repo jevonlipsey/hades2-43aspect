@@ -57,6 +57,11 @@ flows.TradeInDialogue = function()
 	PlayTextLines( u, { Name = "SimLines", PrePortraitExitFunctionName = "NemesisTradeChoice",
 		PrePortraitExitFunctionArgs = DeepCopyTable( PresetEventArgs.NemesisBuyItemChoices ), { Cue = "/VO/Nemesis_0001", Text = "Sim line" } } )
 end
+-- the device sequence: a first conversation, then Nemesis' trade from a second one (its art and portrait must zoom)
+flows.TradeAfterDialogue = function()
+	PlayTextLines( loot( "SpellDrop" ), { Name = "SimLines0", { Cue = "/VO/Selene_0158", Text = "Sim line" } } )
+	flows.TradeInDialogue()
+end
 flows.Store = function() ShowStoreScreen() end
 flows.SellTrait = function() OpenSellTraitMenu( {} ) end
 flows.SurfaceShop = function() ShowSurfaceShopScreen() end

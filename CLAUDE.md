@@ -29,6 +29,7 @@ python3 tools/preview.py ...               # approximates the zoom from a device
 `patch/nova43.lua` is appended to `RoomLogic.lua` between `-- >>> nova43` and `-- <<< nova43 <<<` markers, with CRLF line endings like the game files.
 
 - It wraps `CreateScreenObstacle`, `CreateTextBox`, `Attach`, `Teleport`, `SetScale`, `CreateAnimation` and `SetInteractProperty`.
+- `DisplayTextLine` is wrapped only to forget the last speech bubble at the start of each line, so a new conversation's context art and portrait (drawn before its bubble) zoom with the scene instead of being pinned 1:1 to an old bubble.
 - A rewrite only happens when the calling coroutine's stack contains one of these layout functions:
   - `CreateUpgradeChoiceButton` or `TraitLockedPresentation` (Boon);
   - `CreateScreenFromData` called by `OpenUpgradeChoiceMenu` (Chrome);

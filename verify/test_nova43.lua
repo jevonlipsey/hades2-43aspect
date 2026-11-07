@@ -232,6 +232,15 @@ check( near( np.X, dx( 1158 ) - 210 ) and near( np.Y, dy( 984 ) - 161 ), "namepl
 local emote = find( "Anim" )
 check( near( emote.OffsetX, 10 * S ), "emote offset scaled" )
 
+-- 3b. a later conversation (the bubble from the last one is stale): its art and portrait still zoom
+reset( "4:3" )
+d = DisplayTextLine({})
+local art2, portrait2 = find( "Spawn", function( e ) return e.Id == d.ContextArtId end ), find( "Spawn", function( e ) return e.Id == d.PortraitId end )
+check( art2.X == 960 and art2.Y == 720 and near( art2.Scale, S ), "second conversation: context art zoomed in place, not pinned to the old bubble" )
+check( near( portrait2.X, dx( 470 ) ) and near( portrait2.Y, dy( 825 ) ) and near( portrait2.Scale, S ), "second conversation: portrait zoomed" )
+local np2 = find( "Spawn", function( e ) return e.Id == d.NameplateId end )
+check( near( np2.X, dx( 1158 ) - 210 ) and near( np2.Y, dy( 984 ) - 161 ), "second conversation: nameplate still locked to its bubble" )
+
 -- 4. other screens and 16:9 are untouched
 reset( "4:3" )
 local other = SomeOtherScreen()

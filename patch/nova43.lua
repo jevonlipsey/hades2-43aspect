@@ -45,7 +45,7 @@ local function nova43_install()
 	-- Survives a re-run of this file in the same Lua state, so functions are never wrapped twice.
 	Nova43 = Nova43 or { Originals = {}, Wrappers = {} }
 	local state = Nova43
-	state.Version = 5
+	state.Version = 6
 	state.Config = CFG
 
 	local function original( name )
@@ -222,6 +222,15 @@ local function nova43_install()
 
 	-- Dialogue bubble position cache to anchor the nameplates and continue prompt to the speech bubble
 	local lastDialogueBubble = nil
+
+	-- Every line starts without a bubble, so what a line draws before its bubble (the context art and portrait of a
+	-- new conversation, the glow) zooms with the scene instead of being pinned 1:1 to an earlier line's bubble.
+	wrap( "DisplayTextLine", function( base )
+		return function( ... )
+			lastDialogueBubble = nil
+			return base( ... )
+		end
+	end )
 
 	local function isMenuGroup( group )
 		return type( group ) == "string" and string.sub( group, 1, 11 ) == "Combat_Menu"
